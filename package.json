@@ -1,0 +1,16 @@
+{
+  "name": "jasper-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static portfolio site — minimal data-integrity tests over js/data.js.",
+  "scripts": {
+    "test": "mkdir -p test-results && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=test-results/unit.tap tests/",
+    "test:watch": "node --test --watch --test-reporter=spec tests/",
+    "dev:api": "node server/dev.mjs",
+    "sync": "node scripts/sync.mjs"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0"
+  }
+}

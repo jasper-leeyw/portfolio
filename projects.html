@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects — Jasper Lee</title>
+  <meta name="description" content="Selected work by Jasper Lee — ML evaluation pipelines, computer vision test suites, and audio quality infrastructure." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="frame">
+
+  <!-- Navigation -->
+  <header class="nav">
+    <a href="index.html" class="nav__wordmark">jasper.dev</a>
+    <nav class="nav__links">
+      <a href="index.html#experience">Experience</a>
+      <a href="projects.html" aria-current="page">Projects</a>
+      <a href="about.html">About</a>
+      <a href="assets/resume.pdf" data-open-resume>Résumé</a>
+    </nav>
+  </header>
+
+  <!-- Projects -->
+  <section class="work reveal" id="work">
+    <div class="section-inner">
+      <h2 class="section-label">Projects</h2>
+      <div class="work__grid" id="work-grid"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" id="footer">
+    <div class="section-inner">
+      <ul class="footer__links" id="footer-links"></ul>
+    </div>
+  </footer>
+
+  <!-- Resume modal -->
+  <dialog class="modal resume-modal" id="resume-modal" aria-label="Résumé">
+    <div class="resume-modal__inner">
+      <div class="resume-modal__bar">
+        <a class="resume-modal__download" id="resume-download" download>Download PDF ↓</a>
+        <button class="modal__close" id="resume-modal-close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="resume-modal__pages" id="resume-pages"></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/projects.js?v=1"></script>
+</div><!-- /.frame -->
+</body>
+</html>

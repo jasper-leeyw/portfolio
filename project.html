@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project — Jasper Lee</title>
+  <meta name="description" content="Project case study — Jasper Lee" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="frame">
+
+  <!-- Navigation -->
+  <header class="nav">
+    <a href="index.html" class="nav__wordmark">jasper.dev</a>
+    <nav class="nav__links">
+      <a href="index.html#experience">Experience</a>
+      <a href="projects.html">Projects</a>
+      <a href="about.html">About</a>
+      <a href="assets/resume.pdf" data-open-resume>Résumé</a>
+    </nav>
+  </header>
+
+  <!-- Project hero (shared-element target for view transition) -->
+  <section class="project-hero" id="project-hero">
+    <img class="project-hero__thumb" id="project-thumb" alt="" />
+    <div class="project-hero__body">
+      <a class="project-hero__back" href="projects.html">← Projects</a>
+      <div class="project-hero__source" id="project-source"></div>
+      <h1 class="project-hero__title" id="project-title"></h1>
+      <ul class="project-hero__tags" id="project-tags"></ul>
+    </div>
+  </section>
+
+  <!-- Case study body -->
+  <div class="section-inner">
+    <div class="project-body" id="project-body"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer" id="footer">
+    <div class="section-inner">
+      <ul class="footer__links" id="footer-links"></ul>
+    </div>
+  </footer>
+
+  <!-- Resume modal -->
+  <dialog class="modal resume-modal" id="resume-modal" aria-label="Résumé">
+    <div class="resume-modal__inner">
+      <div class="resume-modal__bar">
+        <a class="resume-modal__download" id="resume-download" download>Download PDF ↓</a>
+        <button class="modal__close" id="resume-modal-close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="resume-modal__pages" id="resume-pages"></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/project.js?v=1"></script>
+</div><!-- /.frame -->
+</body>
+</html>

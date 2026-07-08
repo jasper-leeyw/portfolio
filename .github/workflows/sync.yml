@@ -1,0 +1,23 @@
+name: LeetCode sync
+
+# Pulls recent solves from the LeetCode API and accumulates them into Turso.
+# Runs on a schedule so page visitors never hit the LeetCode API directly.
+on:
+  schedule:
+    - cron: '0 */4 * * *'   # every 4 hours (UTC)
+  workflow_dispatch: {}      # allows a manual "Run workflow" from the Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: node scripts/sync.mjs
+        env:
+          LEET_USER: ${{ secrets.LEET_USER }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}

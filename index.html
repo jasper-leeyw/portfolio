@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jasper Lee — Software Engineer</title>
+  <meta name="description" content="Software engineer — backend & ML infrastructure, building with AI agents. Five years in software quality across Cisco, Zoom, Apple, and Meta." />
+  <meta property="og:title" content="Jasper Lee — Software Engineer" />
+  <meta property="og:description" content="Backend & ML infrastructure, building with AI agents. A hardware + QA foundation turned into an edge." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    // Set the theme before first paint (saved choice, else system preference).
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="frame">
+
+  <!-- Navigation -->
+  <header class="nav">
+    <a href="#" class="nav__wordmark">jasper.dev</a>
+    <nav class="nav__links">
+      <a href="#experience">Experience</a>
+      <a href="projects.html">Projects</a>
+      <a href="about.html">About</a>
+      <a href="assets/resume.pdf" data-open-resume>Résumé</a>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero__inner">
+      <div class="hero__lead">
+      <div class="hero__main">
+        <div class="hero__avatar">
+          <img class="hero__photo" id="hero-photo" alt="" />
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode">
+            <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+        </div>
+        <h1 class="hero__name" id="hero-name"></h1>
+        <p class="hero__title" id="hero-title"></p>
+        <p class="hero__status" id="hero-status"></p>
+        <p class="hero__positioning" id="hero-positioning"></p>
+        <p class="hero__intro" id="hero-intro"></p>
+        <div class="hero__actions" id="hero-actions"></div>
+        <ul class="hero__links" id="hero-links"></ul>
+      </div>
+      <aside class="hero__aside">
+        <div class="leetcode" id="leetcode" hidden>
+          <div class="leetcode__head">
+            <span class="leetcode__label">LeetCode</span>
+            <a class="leetcode__profile" id="leetcode-link" href="#" target="_blank" rel="noopener noreferrer">profile ↗</a>
+          </div>
+          <div class="leetcode__stats" id="leetcode-stats"></div>
+          <div class="leetcode__heatmap" id="leetcode-heatmap"></div>
+          <p class="leetcode__caption" id="leetcode-caption"></p>
+        </div>
+      </aside>
+      </div><!-- /.hero__lead -->
+
+      <div class="hero__stage">
+        <div class="hero-tree" id="hero-tree" data-link="tracker.html" aria-label="Practice growth tree">
+          <svg class="hero-tree__svg" id="hero-tree-svg" viewBox="0 0 620 500" role="img" aria-label="Growth tree — one leaf per solved LeetCode problem, one branch per topic"></svg>
+          <div class="hero-tree__foot">
+            <div class="hero-tree__stats">
+              <span class="hero-tree__stat"><b id="tree-total">0</b><span>solved</span></span>
+              <span class="hero-tree__stat"><b id="tree-streak">0</b><span>day streak</span></span>
+              <span class="hero-tree__stat"><b id="tree-topics">0</b><span>topics</span></span>
+            </div>
+            <p class="hero-tree__caption">Every leaf is a solved problem · every branch a topic</p>
+            <p class="hero-tree__hint">Click the trunk to open your LeetCode tracker ↗</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience + Work two-column grid -->
+  <div class="body-grid">
+    <section class="experience reveal" id="experience">
+      <div class="section-inner">
+        <h2 class="section-label">Experience</h2>
+        <aside class="career-graph" id="career-graph" aria-label="Career progression"></aside>
+        <ol class="exp__list" id="exp-list"></ol>
+      </div>
+    </section>
+
+    <section class="work reveal" id="work">
+      <div class="section-inner">
+        <h2 class="section-label">Projects</h2>
+        <div class="work__grid" id="work-grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer" id="footer">
+    <div class="section-inner">
+      <ul class="footer__links" id="footer-links"></ul>
+    </div>
+  </footer>
+
+  <!-- Resume modal -->
+  <dialog class="modal resume-modal" id="resume-modal" aria-label="Résumé">
+    <div class="resume-modal__inner">
+      <div class="resume-modal__bar">
+        <a class="resume-modal__download" id="resume-download" download>Download PDF ↓</a>
+        <button class="modal__close" id="resume-modal-close" aria-label="Close">&#x2715;</button>
+      </div>
+      <div class="resume-modal__pages" id="resume-pages"></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/main.js?v=13"></script>
+</div><!-- /.frame -->
+</body>
+</html>
