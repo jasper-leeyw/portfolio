@@ -4,7 +4,7 @@ name: LeetCode sync
 # Runs on a schedule so page visitors never hit the LeetCode API directly.
 on:
   schedule:
-    - cron: '0 */4 * * *'   # every 4 hours (UTC)
+    - cron: '0 */2 * * *'   # every 2 hours (UTC)
   workflow_dispatch: {}      # allows a manual "Run workflow" from the Actions tab
 
 jobs:

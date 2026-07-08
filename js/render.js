@@ -1,3 +1,5 @@
+import { fetchDashboard } from './api.js?v=1';
+
 const GITHUB_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
 </svg>`;
@@ -82,12 +84,11 @@ function renderLinkList(el, links) {
 }
 
 // LeetCode board — a custom heatmap of the trailing 3 months (rolling ~13-week
-// window ending today), drawn from live submission data. We fetch the user's
-// calendar + solved counts from alfa-leetcode-api (CORS-friendly); LeetCode's
-// own GraphQL is CORS-blocked from a static site. The free API can cold-start
-// or fail, so everything is wrapped in a timeout + graceful fallback to a
-// profile link, and the section hides entirely when there's no username.
-const LEET_API = 'https://alfa-leetcode-api.onrender.com';
+// window ending today), drawn from the SAME cached data the tracker uses:
+// GET /api/practice/data, which reads accumulated solves out of Turso. The
+// browser never touches the external LeetCode API — only the scheduled sync job
+// does — so this board stays up even when that API is down. Falls back to a
+// profile link if our own endpoint is unreachable; hidden with no username.
 const HEATMAP_WEEKS = 13;          // ~3 rolling months
 const MS_DAY = 86400000;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -109,70 +110,34 @@ export function renderLeetCode(links) {
   const capEl = document.getElementById('leetcode-caption');
   if (capEl) capEl.textContent = 'Loading…';
 
-  loadLeetCode(user)
-    .then(data => {
-      if (!data) { showLeetFallback(section, profile); return; }
+  fetchDashboard()
+    .then(dash => {
+      const map = solvesByDay(dash.dailyTimeline);
       const cols = buildHeatmapGrid();
       let windowTotal = 0, activeDays = 0;
       for (const col of cols) {
         for (const cell of col) {
           if (cell.future) continue;
-          const c = data.map.get(cell.key) || 0;
+          const c = map.get(cell.key) || 0;
           if (c > 0) { windowTotal += c; activeDays++; }
         }
       }
-      renderLeetStats(statsEl, { solved: data.solved, streak: data.streak, activeDays });
-      renderLeetHeatmap(heatEl, cols, data.map);
+      const streak = dash.treeInput && dash.treeInput.stats ? dash.treeInput.stats.streak : 0;
+      renderLeetStats(statsEl, { solved: dash.totalSolved, streak, activeDays });
+      renderLeetHeatmap(heatEl, cols, map);
       if (capEl) {
-        capEl.textContent = `Last 3 months · ${windowTotal} submission${windowTotal === 1 ? '' : 's'}`;
+        capEl.textContent = `Last 3 months · ${windowTotal} solved`;
       }
     })
     .catch(() => showLeetFallback(section, profile));
 }
 
-// Fetch calendar (required) + solved (optional) under a shared timeout.
-// Returns null if the calendar can't be parsed, so the caller can fall back.
-async function loadLeetCode(user) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 8000);
-  try {
-    const u = encodeURIComponent(user);
-    const [calRes, solvedRes] = await Promise.allSettled([
-      fetch(`${LEET_API}/${u}/calendar`, { signal: ctrl.signal }),
-      fetch(`${LEET_API}/${u}/solved`, { signal: ctrl.signal }),
-    ]);
-
-    let map = null, streak = 0;
-    if (calRes.status === 'fulfilled' && calRes.value.ok) {
-      const j = await calRes.value.json();
-      map = parseSubmissionCalendar(j.submissionCalendar);
-      streak = Number(j.streak) || 0;
-    }
-    if (!map) return null;
-
-    let solved = null;
-    if (solvedRes.status === 'fulfilled' && solvedRes.value.ok) {
-      const j = await solvedRes.value.json();
-      const n = Number(j.solvedProblem);
-      if (Number.isFinite(n)) solved = n;
-    }
-    return { map, streak, solved };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-// submissionCalendar is a JSON string of { "<utc-midnight-seconds>": count }.
-// Key each entry by its UTC calendar day so it lines up with the grid below.
-function parseSubmissionCalendar(raw) {
-  if (!raw) return null;
-  let obj;
-  try { obj = typeof raw === 'string' ? JSON.parse(raw) : raw; }
-  catch { return null; }
+// Reduce the dashboard's dailyTimeline to a day→count map (problems solved per
+// UTC day), matching the key space buildHeatmapGrid() produces below.
+function solvesByDay(dailyTimeline) {
   const map = new Map();
-  for (const [ts, count] of Object.entries(obj)) {
-    const key = new Date(Number(ts) * 1000).toISOString().slice(0, 10);
-    map.set(key, (map.get(key) || 0) + Number(count));
+  for (const day of dailyTimeline || []) {
+    if (day && day.date) map.set(day.date, day.items ? day.items.length : 0);
   }
   return map;
 }
@@ -202,8 +167,9 @@ function buildHeatmapGrid() {
   return cols;
 }
 
+// Solves-per-day are small numbers, so ramp one problem at a time up to 4+.
 function leetLevel(c) {
-  return c === 0 ? 0 : c <= 2 ? 1 : c <= 4 ? 2 : c <= 6 ? 3 : 4;
+  return c === 0 ? 0 : c === 1 ? 1 : c === 2 ? 2 : c === 3 ? 3 : 4;
 }
 
 function renderLeetStats(el, { solved, streak, activeDays }) {
@@ -250,12 +216,12 @@ function renderLeetHeatmap(el, cols, map) {
       const c = map.get(cell.key) || 0;
       const y = TOP + ri * STEP;
       cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2.5" ` +
-        `class="lc lc-${leetLevel(c)}"><title>${cell.key}: ${c} submission${c === 1 ? '' : 's'}</title></rect>`;
+        `class="lc lc-${leetLevel(c)}"><title>${cell.key}: ${c} solved</title></rect>`;
     });
   });
 
   el.innerHTML =
-    `<svg viewBox="0 0 ${W} ${H}" class="lc-grid" role="img" aria-label="LeetCode submissions over the last 13 weeks">` +
+    `<svg viewBox="0 0 ${W} ${H}" class="lc-grid" role="img" aria-label="LeetCode problems solved over the last 13 weeks">` +
     `${labels}${cells}</svg>`;
 }
 

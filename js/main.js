@@ -8,7 +8,7 @@ import {
   renderWork,
   renderResume,
   renderFooter,
-} from './render.js?v=13';
+} from './render.js?v=14';
 import { practiceData } from './sample-data.js?v=1';
 import { fetchDashboard } from './api.js?v=1';
 
@@ -16,7 +16,7 @@ import { fetchDashboard } from './api.js?v=1';
 renderHero(DATA.hero, DATA.currently, DATA.links);
 renderHeroTree(practiceData().treeInput); // sample first — page always works
 fetchDashboard().then(d => renderHeroTree(d.treeInput)).catch(() => {}); // upgrade to real data if the backend has it
-renderLeetCode(DATA.links);       // heatmap restored in the hero lead (right)
+renderLeetCode(DATA.links);       // hero heatmap — Turso-backed, reads /api/practice/data
 renderCareerGraph(DATA.experience); // now lives in the Experience column
 renderExperience(DATA.experience);
 renderWork(DATA.projects);

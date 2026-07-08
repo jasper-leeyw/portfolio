@@ -5,7 +5,7 @@ import {
   renderDailyTimeline,
   renderLeetCode,
   renderFooter,
-} from './render.js?v=13';
+} from './render.js?v=14';
 import { practiceData } from './sample-data.js?v=1';
 import { fetchDashboard } from './api.js?v=1';
 
