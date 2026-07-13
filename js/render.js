@@ -83,13 +83,13 @@ function renderLinkList(el, links) {
   }).join('');
 }
 
-// LeetCode board — a custom heatmap of the trailing 3 months (rolling ~13-week
-// window ending today), drawn from the SAME cached data the tracker uses:
+// LeetCode board — a custom heatmap of the trailing 45 days (rolling window
+// ending today), drawn from the SAME cached data the tracker uses:
 // GET /api/practice/data, which reads accumulated solves out of Turso. The
 // browser never touches the external LeetCode API — only the scheduled sync job
 // does — so this board stays up even when that API is down. Falls back to a
 // profile link if our own endpoint is unreachable; hidden with no username.
-const HEATMAP_WEEKS = 13;          // ~3 rolling months
+const HEATMAP_DAYS = 45;           // rolling window length (days)
 const MS_DAY = 86400000;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -117,7 +117,7 @@ export function renderLeetCode(links) {
       let windowTotal = 0, activeDays = 0;
       for (const col of cols) {
         for (const cell of col) {
-          if (cell.future) continue;
+          if (cell.future || cell.before) continue;
           const c = map.get(cell.key) || 0;
           if (c > 0) { windowTotal += c; activeDays++; }
         }
@@ -126,7 +126,7 @@ export function renderLeetCode(links) {
       renderLeetStats(statsEl, { solved: dash.totalSolved, streak, activeDays });
       renderLeetHeatmap(heatEl, cols, map);
       if (capEl) {
-        capEl.textContent = `Last 3 months · ${windowTotal} solved`;
+        capEl.textContent = `Last 45 days · ${windowTotal} solved`;
       }
     })
     .catch(() => showLeetFallback(section, profile));
@@ -142,24 +142,30 @@ function solvesByDay(dailyTimeline) {
   return map;
 }
 
-// 13 week-columns (Sun→Sat rows) ending with the current week. Worked in UTC so
-// day keys match the calendar's UTC-midnight timestamps. Cells past today are
-// flagged `future` so the current week renders partial.
+// Week-columns (Sun→Sat rows) spanning the trailing HEATMAP_DAYS window ending
+// today. Worked in UTC so day keys match the stored solve dates. The grid snaps
+// to whole weeks, but cells past today (`future`) or before the window start
+// (`before`) render blank — so exactly the last N days show, with partial
+// columns at each edge.
 function buildHeatmapGrid() {
   const now = new Date();
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  const lastSunday = today.getTime() - today.getUTCDay() * MS_DAY;
-  const start = lastSunday - (HEATMAP_WEEKS - 1) * 7 * MS_DAY;
+  const todayT = today.getTime();
+  const windowStart = todayT - (HEATMAP_DAYS - 1) * MS_DAY;       // first day in the window
+  const gridStart = windowStart - new Date(windowStart).getUTCDay() * MS_DAY; // back to that week's Sunday
+  const weeks = Math.floor((todayT - gridStart) / (7 * MS_DAY)) + 1;
 
   const cols = [];
-  for (let c = 0; c < HEATMAP_WEEKS; c++) {
+  for (let c = 0; c < weeks; c++) {
     const col = [];
     for (let r = 0; r < 7; r++) {
-      const d = new Date(start + (c * 7 + r) * MS_DAY);
+      const t = gridStart + (c * 7 + r) * MS_DAY;
+      const d = new Date(t);
       col.push({
         date: d,
         key: d.toISOString().slice(0, 10),
-        future: d.getTime() > today.getTime(),
+        future: t > todayT,
+        before: t < windowStart,
       });
     }
     cols.push(col);
@@ -212,7 +218,7 @@ function renderLeetHeatmap(el, cols, map) {
   cols.forEach((col, ci) => {
     const x = ci * STEP;
     col.forEach((cell, ri) => {
-      if (cell.future) return;
+      if (cell.future || cell.before) return;
       const c = map.get(cell.key) || 0;
       const y = TOP + ri * STEP;
       cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2.5" ` +
@@ -221,7 +227,7 @@ function renderLeetHeatmap(el, cols, map) {
   });
 
   el.innerHTML =
-    `<svg viewBox="0 0 ${W} ${H}" class="lc-grid" role="img" aria-label="LeetCode problems solved over the last 13 weeks">` +
+    `<svg viewBox="0 0 ${W} ${H}" class="lc-grid" role="img" aria-label="LeetCode problems solved over the last 45 days">` +
     `${labels}${cells}</svg>`;
 }
 
