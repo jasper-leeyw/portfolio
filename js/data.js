@@ -1,7 +1,7 @@
 export const DATA = {
 
   hero: {
-    photo: "assets/profile-pic.PNG", // circular hero avatar; set to "" to hide
+    photo: "assets/profile-pic.jpg", // circular hero avatar; set to "" to hide
     photoAlt: "Jasper Lee",
     name: "Jasper Lee",
     title: "Software Engineer",
