@@ -13,6 +13,15 @@ try {
   const res = await recordSolves(items);
   console.log(`synced ${user}: fetched ${items.length}, added ${res.added}, total ${res.total}`);
 } catch (err) {
+  // Transient upstream (LeetCode API) failures — rate limits, cold starts,
+  // timeouts — are out of our control and self-heal on the next run. Skip the
+  // cycle (the store keeps its last-good data) rather than failing the job, so a
+  // flaky free API doesn't spam red X's / failure emails. Genuine errors (e.g.
+  // bad Turso credentials) still exit non-zero and surface loudly.
+  if (err && err.upstream) {
+    console.warn(`sync skipped — upstream API unavailable after retries: ${err.message}`);
+    process.exit(0);
+  }
   console.error('sync failed:', err && err.message || err);
   process.exit(1);
 }
